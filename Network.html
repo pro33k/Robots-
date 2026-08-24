@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vortex Robot - Network</title>
+  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" />
+  <style>
+    :root {
+      --vortex-orange: #f97316;
+      --vortex-orange-dark: #ea580c;
+      --vortex-bg-app: #f8fafc;
+      --vortex-card-bg: #ffffff;
+      --vortex-text-main: #0f172a;
+      --vortex-text-muted: #64748b;
+      --vortex-border: #e2e8f0;
+    }
+
+    body {
+      background-color: var(--vortex-bg-app);
+      color: var(--vortex-text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      padding-bottom: 70px;
+    }
+
+    .app-header {
+      background: linear-gradient(180deg, var(--vortex-orange) 0%, var(--vortex-orange-dark) 100%) !important;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 16px 16px 16px;
+      padding-top: max(20px, env(safe-area-inset-top));
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    
+    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-size: 18px; font-weight: 800; color: #ffffff !important; line-height: 1.1; margin: 0; }
+    .brand-sub { font-size: 11px; color: rgba(255, 255, 255, 0.9) !important; }
+    
+    .phone-number-box {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .phone-text { color: #ffffff !important; font-size: 12px; font-weight: 700; }
+    .phone-number-box svg { fill: #ffffff !important; }
+
+    .main-content { padding: 16px; }
+
+    .network-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .stat-card {
+      background: var(--vortex-card-bg);
+      border: 1px solid var(--vortex-border);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+    
+    .stat-label { font-size: 11px; color: var(--vortex-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+    .stat-value { font-size: 16px; font-weight: 800; color: var(--vortex-text-main); }
+    .stat-value.green { color: #16a34a; }
+    .stat-value.gold { color: #d97706; }
+    .stat-value.cyan { color: #0284c7; }
+
+    .network-action-box {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+      position: relative;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      color: #ffffff;
+      overflow: hidden;
+    }
+    
+    .network-action-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .network-action-desc { font-size: 12px; color: #ffedd5; margin-bottom: 14px; line-height: 1.5; padding-right: 36px; }
+    
+    .link-box-row {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 6px 6px 6px 12px;
+      border-radius: 10px;
+      gap: 8px;
+    }
+    
+    .link-text { font-size: 11px; color: #ea580c; word-break: break-all; flex: 1; font-weight: 600; font-family: monospace; }
+    
+    .copy-link-btn {
+      background: #0f172a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+      transition: background 0.2s;
+    }
+    .copy-link-btn:active { background: #1e293b; }
+
+    .level-tabs {
+      display: flex;
+      background: #e2e8f0;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 16px;
+      gap: 4px;
+    }
+    
+    .level-tab {
+      flex: 1;
+      padding: 10px 8px;
+      background: transparent;
+      border: none;
+      border-radius: 9px;
+      color: var(--vortex-text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .level-tab.active { 
+      background: #ffffff; 
+      color: var(--vortex-orange); 
+      font-weight: 700; 
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset; 
+    }
+
+    .referral-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    
+    .referral-item {
+      background: var(--vortex-card-bg);
+      border: 1px solid var(--vortex-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+    
+    .ref-user-info { display: flex; flex-direction: column; gap: 3px; }
+    .ref-phone { font-size: 13px; font-weight: 700; color: var(--vortex-text-main); }
+    .ref-date { font-size: 11px; color: var(--vortex-text-muted); }
+    .ref-sub-count { font-size: 11px; color: #0284c7; font-weight: 500; }
+    .ref-commission { text-align: right; }
+    .ref-amount { font-size: 14px; font-weight: 800; color: #16a34a; margin-bottom: 2px; }
+    
+    .ref-status {
+      font-size: 10px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid #bbf7d0;
+    }
+    .ref-status.inactive { background: #f1f5f9; color: var(--vortex-text-muted); border-color: #cbd5e1; }
+    
+    .empty-state { 
+      text-align: center; 
+      padding: 30px 20px; 
+      background: var(--vortex-card-bg); 
+      border: 1px solid var(--vortex-border); 
+      border-radius: 14px; 
+      color: var(--vortex-text-muted); 
+      font-size: 13px; 
+      line-height: 1.5;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+
+    .section-title h2 { font-size: 15px; font-weight: 700; color: var(--vortex-text-main); margin: 0; }
+    .indicator-bar { background-color: var(--vortex-orange) !important; }
+
+    .modal-flag-badge {
+      position: absolute; top: 0; right: 0; width: 44px; height: 32px;
+      border-top-right-radius: 16px; border-bottom-left-radius: 16px;
+      overflow: hidden; display: flex; flex-direction: column; box-shadow: -2px 2px 6px rgba(0,0,0,0.15);
+    }
+    .flag-stripe { flex: 1; width: 100%; }
+    .flag-black { background: #000000; }
+    .flag-yellow { background: #FCD116; }
+    .flag-red { background: #D9381E; }
+    .flag-crest-circle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 10px; height: 10px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .flag-crest-inner { width: 5px; height: 5px; background: #D9381E; border-radius: 50%; }
+    .brand-logo-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #ffffff; }
+
+    .support-float-wrap {
+      position: fixed; right: 16px; bottom: 75px; display: flex; flex-direction: column; align-items: center; z-index: 998;
+    }
+    .support-label {
+      font-size: 10px; font-weight: 700; background: #0f172a; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .support-btn {
+      width: 45px; height: 45px; background: #25D366; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+      cursor: pointer; text-decoration: none; transition: transform 0.2s;
+    }
+    .support-btn:active { transform: scale(0.95); }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #ffffff;
+      border-top: 1px solid var(--vortex-border); display: flex; justify-content: space-around;
+      align-items: center; z-index: 999; box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    }
+    .bottom-nav .nav-link {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-decoration: none; color: var(--vortex-text-muted); font-size: 11px; font-weight: 600; gap: 3px; flex: 1; height: 100%; transition: color 0.2s;
+    }
+    .bottom-nav .nav-link.active { color: var(--vortex-orange); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand-box">
+        <div class="brand-logo-ring" style="border: none; padding: 0;">
+          <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Vortex Logo" class="brand-logo-img" />
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Network</h1>
+          <span class="brand-sub">Team Referrals</span>
+        </div>
+      </div>
+      <div class="header-user-actions">
+        <div class="phone-number-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span class="phone-text" id="headerPhoneDisplay">Loading...</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="network-stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Team Size</div>
+          <div class="stat-value" id="totalTeamCount">0 Members</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Subordinates</div>
+          <div class="stat-value cyan" id="activeTeamCount">0 Active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Team Turnover</div>
+          <div class="stat-value" id="teamTurnover">UGX 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Commission</div>
+          <div class="stat-value gold" id="totalTeamEarnings">UGX 0</div>
+        </div>
+      </div>
+
+      <div class="network-action-box">
+        <div class="modal-flag-badge">
+          <div class="flag-stripe flag-black"></div>
+          <div class="flag-stripe flag-yellow"></div>
+          <div class="flag-stripe flag-red"></div>
+          <div class="flag-stripe flag-black"></div>
+          <div class="flag-stripe flag-yellow"></div>
+          <div class="flag-stripe flag-red"></div>
+          <div class="flag-crest-circle"><div class="flag-crest-inner"></div></div>
+        </div>
+        <div class="network-action-title">Invite Team Members</div>
+        <div class="network-action-desc">Build your multi-tier agency network. Earn tier bonuses instantly when downlines activate trading robots: <strong>Level 1 (13%)</strong>, <strong>Level 2 (2%)</strong>.</div>
+        <div class="link-box-row">
+          <span class="link-text" id="networkPageRefLink">https://vortexrobot.com/ref/...</span>
+          <button class="copy-link-btn" id="copyNetworkLinkBtn">Copy Link</button>
+        </div>
+      </div>
+
+      <div class="level-tabs">
+        <button class="level-tab active" data-level="1">Level 1 [0]</button>
+        <button class="level-tab" data-level="2">Level 2 [0]</button>
+        <button class="level-tab" data-level="3">Level 3 [0]</button>
+      </div>
+
+      <div class="section-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span class="indicator-bar" style="width: 4px; height: 16px; border-radius: 2px;"></span>
+        <h2 id="currentLevelTitle">Level 1 Referral Members</h2>
+      </div>
+
+      <div class="referral-list" id="referralListContainer"></div>
+    </main>
+
+    <div class="support-float-wrap">
+      <div class="support-label">Support</div>
+      <a href="https://wa.me/256765050916" target="_blank" class="support-btn" aria-label="Customer Support">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      </a>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="nav-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg><span>Account</span></a>
+      <a href="Vault.html" class="nav-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>Robots</span></a>
+      <a href="network.html" class="nav-link active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>Network</span></a>
+      <a href="portfolio.html" class="nav-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg><span>Portfolio</span></a>
+    </nav>
+  </div>
+
+  <!-- Centralized Brain Script -->
+  <script type="module" src="script.js"></script>
+
+  <!-- SECURE Network Logic (No localStorage) -->
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      onAuthStateChanged(auth, async (firebaseUser) => {
+        if (!firebaseUser) {
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const loggedInUserId = firebaseUser.uid;
+        
+        // Get phone from VortexBrain if available, else fallback
+        let userPhone = 'Loading...';
+        if (window.VortexBrain && window.VortexBrain.getState()) {
+          const state = window.VortexBrain.getState();
+          userPhone = state.phone || firebaseUser.phoneNumber || firebaseUser.email;
+        }
+
+        const headerPhone = document.getElementById('headerPhoneDisplay');
+        if (headerPhone) headerPhone.textContent = userPhone;
+
+        const refLinkEl = document.getElementById('networkPageRefLink');
+        // CRITICAL FIX: Referral links must use UID, not phone number, to match script.js logic
+        if (refLinkEl) refLinkEl.textContent = `https://vortexrobot.com/ref/${loggedInUserId}`;
+
+        // --- SECURE FIRESTORE REFERRAL FETCHING ---
+        
+        // 1. Fetch Level 1 (Direct Referrals)
+        const level1Query = query(collection(db, 'users'), where('referredBy', '==', loggedInUserId));
+        const level1Snapshot = await getDocs(level1Query);
+        
+        const level1Members = [];
+        let level1ActiveCount = 0;
+        let level1Turnover = 0;
+        let level1Earnings = 0;
+
+        level1Snapshot.forEach(doc => {
+          const data = doc.data();
+          const isInvested = (data.activeRobotsCount || 0) > 0;
+          if (isInvested) level1ActiveCount++;
+          
+          const investment = data.totalActiveInvestment || 0;
+          level1Turnover += investment;
+          level1Earnings += Math.floor(investment * 0.13); // 13% commission
+
+          level1Members.push({
+            phone: data.phone || data.email || 'Unknown',
+            date: data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'Recently',
+            subs: '0 members', 
+            amount: `+UGX ${Math.floor(investment * 0.13).toLocaleString()}`,
+            status: isInvested ? 'Robot Active' : 'Pending Investment',
+            inactiveClass: isInvested ? '' : 'inactive',
+            uid: doc.id
+          });
+        });
+
+        // 2. Fetch Level 2 (Referrals of Level 1)
+        // Note: Firestore 'in' query supports max 10 items. We slice to 10 for safety.
+        const level1Uids = level1Members.map(m => m.uid).slice(0, 10);
+        let level2Members = [];
+        let level2Earnings = 0;
+
+        if (level1Uids.length > 0) {
+          const level2Query = query(collection(db, 'users'), where('referredBy', 'in', level1Uids));
+          const level2Snapshot = await getDocs(level2Query);
+          level2Snapshot.forEach(doc => {
+            const data = doc.data();
+            const isInvested = (data.activeRobotsCount || 0) > 0;
+            if (isInvested) {
+              const commission = Math.floor((data.totalActiveInvestment || 0) * 0.02); // 2% for Level 2
+              level2Earnings += commission;
+              level2Members.push({
+                phone: data.phone || data.email || 'Unknown',
+                date: data.createdAt ? new Date(data.createdAt.toDate()).toLocaleDateString() : 'Recently',
+                subs: '0 members',
+                amount: `+UGX ${commission.toLocaleString()}`,
+                status: isInvested ? 'Robot Active' : 'Pending Investment',
+                inactiveClass: isInvested ? '' : 'inactive'
+              });
+            }
+          });
+        }
+
+        // 3. Calculate Totals
+        const totalTeamSize = level1Members.length + level2Members.length;
+        const totalActive = level1ActiveCount + level2Members.length;
+        const totalEarnings = level1Earnings + level2Earnings;
+
+        // Update Metric Cards
+        document.getElementById('totalTeamCount').textContent = `${totalTeamSize} Members`;
+        document.getElementById('activeTeamCount').textContent = `${totalActive} Active`;
+        document.getElementById('teamTurnover').textContent = `UGX ${level1Turnover.toLocaleString()}`;
+        document.getElementById('totalTeamEarnings').textContent = `UGX ${totalEarnings.toLocaleString()}`;
+
+        // Update Tabs
+        const levelTabs = document.querySelectorAll('.level-tab');
+        levelTabs[0].textContent = `Level 1 [${level1Members.length}]`;
+        levelTabs[1].textContent = `Level 2 [${level2Members.length}]`;
+        levelTabs[2].textContent = `Level 3 [0]`; // Placeholder
+
+        const currentLevelTitle = document.getElementById('currentLevelTitle');
+        const listContainer = document.getElementById('referralListContainer');
+
+        function renderLevelList(level) {
+          if (currentLevelTitle) currentLevelTitle.textContent = `Level ${level} Referral Members`;
+          let members = [];
+          if (level === '1') members = level1Members;
+          else if (level === '2') members = level2Members;
+          else members = [];
+
+          if (!listContainer) return;
+
+          if (members.length === 0) {
+            listContainer.innerHTML = `<div class="empty-state">No referral members found in Level ${level} yet. Share your unique invite link above to expand your agency network!</div>`;
+            return;
+          }
+          
+          let html = '';
+          members.forEach(m => {
+            html += `
+              <div class="referral-item">
+                <div class="ref-user-info">
+                  <span class="ref-phone">${m.phone}</span>
+                  <span class="ref-date">Joined: ${m.date}</span>
+                  <span class="ref-sub-count">Sub-team: ${m.subs}</span>
+                </div>
+                <div class="ref-commission">
+                  <div class="ref-amount">${m.amount}</div>
+                  <span class="ref-status ${m.inactiveClass || ''}">${m.status}</span>
+                </div>
+              </div>
+            `;
+          });
+          listContainer.innerHTML = html;
+        }
+
+        renderLevelList('1');
+
+        levelTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            levelTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderLevelList(tab.getAttribute('data-level'));
+          });
+        });
+
+        // Copy Link Logic
+        const copyBtn = document.getElementById('copyNetworkLinkBtn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            const linkText = refLinkEl ? refLinkEl.textContent : '';
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(linkText).then(() => showCopiedSuccess(copyBtn));
+            } else {
+              fallbackCopyText(linkText, copyBtn);
+            }
+          });
+        }
+
+        function fallbackCopyText(text, btn) {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed";
+          textArea.style.top = "0";
+          textArea.style.left = "0";
+          textArea.style.opacity = "0";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          try {
+            if (document.execCommand('copy')) showCopiedSuccess(btn);
+          } catch (err) {
+            console.error('Fallback copy failed', err);
+          }
+          document.body.removeChild(textArea);
+        }
+
+        function showCopiedSuccess(btn) {
+          btn.textContent = 'Copied!';
+          btn.style.background = '#16a34a';
+          setTimeout(() => {
+            btn.textContent = 'Copy Link';
+            btn.style.background = '#0f172a';
+          }, 2000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

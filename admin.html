@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vortex Robot - Admin Control Center</title>
+  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" />
+  <style>
+    :root {
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --success: #16a34a;
+      --warning: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Login Overlay */
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999; padding: 20px;
+    }
+    .login-overlay.hidden { display: none; }
+    .login-box {
+      background: var(--card); border-radius: 16px; padding: 32px 24px;
+      width: 100%; max-width: 360px; text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .login-box img { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 16px; border: 2px solid var(--primary); }
+    .login-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    /* Layout */
+    .admin-wrapper { display: flex; min-height: 100vh; position: relative; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 240px; background: var(--card); border-right: 1px solid var(--border);
+      padding: 20px 12px; display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 100;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 12px 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .sidebar-brand img { width: 32px; height: 32px; border-radius: 50%; }
+    .sidebar-brand h1 { font-size: 16px; font-weight: 700; }
+    
+    .nav-item {
+      padding: 10px 12px; color: var(--text-muted); border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 600; transition: all 0.2s; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+    }
+    .nav-item:hover, .nav-item.active { background: rgba(249, 115, 22, 0.1); color: var(--primary); }
+    .nav-item.logout { color: var(--danger); margin-top: auto; }
+    .nav-item.logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+    /* Main Content */
+    .main-content { flex: 1; margin-left: 240px; padding: 24px; overflow-y: auto; width: 100%; }
+    
+    .section-panel { display: none; animation: fadeIn 0.3s ease; }
+    .section-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); padding: 16px; border-radius: 12px;
+    }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+    .stat-value { font-size: 22px; font-weight: 800; color: var(--text); }
+
+    /* Forms & Inputs */
+    .card-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    }
+    .form-control {
+      width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 12px; font-weight: 500;
+    }
+    .form-control:focus { border-color: var(--primary); background: #fff; }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px; background: var(--primary); border: none; border-radius: 8px;
+      color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; width: 100%;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: var(--success); }
+    .btn-success:hover { background: #15803d; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    .btn-outline:hover { border-color: var(--danger); color: var(--danger); }
+    .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; display: inline-block; }
+
+    /* Tables */
+    .table-responsive {
+      width: 100%; overflow-x: auto; background: var(--card); border-radius: 12px; border: 1px solid var(--border);
+    }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .data-table th, .data-table td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .data-table th { background: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover { background: #f8fafc; }
+
+    /* Badges */
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-danger { background: #fee2e2; color: #b91c1c; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100000; opacity: 0; pointer-events: none; transition: 0.25s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: var(--card); border-radius: 16px; padding: 24px; width: 90%; max-width: 340px;
+      text-align: center; transform: scale(0.9); transition: 0.25s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-icon { font-size: 24px; margin-bottom: 12px; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); width: 260px; box-shadow: 10px 0 25px rgba(0,0,0,0.1); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 16px; }
+      .mobile-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--card); border-bottom: 1px solid var(--border);
+        padding: 12px 16px; position: sticky; top: 0; z-index: 99; width: 100%;
+      }
+      .mobile-menu-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+    }
+    @media (min-width: 769px) {
+      .mobile-topbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Overlay -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Logo" />
+      <h3>Vortex Admin Sign-In</h3>
+      <form id="adminLoginForm">
+        <input type="text" id="adminUser" class="form-control" placeholder="Email or Phone" required />
+        <input type="password" id="adminPass" class="form-control" placeholder="Password" required />
+        <button type="submit" class="btn">Connect</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Modal -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-icon" id="modalIcon">✓</div>
+      <h3 class="modal-title" id="modalTitle" style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Notice</h3>
+      <p class="modal-message" id="modalMessage" style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4;">-</p>
+      <button class="btn" onclick="closeCustomModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Mobile Topbar -->
+  <div class="mobile-topbar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" style="width: 28px; height: 28px; border-radius: 50%;" />
+      <span style="font-weight: 700; font-size: 14px;">Vortex Admin</span>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </div>
+
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Logo" />
+        <h1>Vortex Admin</h1>
+      </div>
+      <div class="nav-item active" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
+      <div class="nav-item" onclick="switchTab('users', this)">👥 Users</div>
+      <div class="nav-item" onclick="switchTab('deposits', this)">💳 Deposits</div>
+      <div class="nav-item" onclick="switchTab('withdrawals', this)">💸 Withdrawals</div>
+      <div class="nav-item" onclick="switchTab('robots', this)">🤖 Robots</div>
+      <div class="nav-item" onclick="switchTab('notifications', this)">📢 Notifications</div>
+      <div class="nav-item logout" onclick="logoutAdmin()">🚪 Logout</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      
+      <!-- Dashboard -->
+      <div id="section-dashboard" class="section-panel active">
+        <h2>Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="statTotalUsers">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MTN Deposits</div>
+            <div class="stat-value" id="statMtnDep" style="color: #ca8a04;">UGX 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Airtel Deposits</div>
+            <div class="stat-value" id="statAirtelDep" style="color: #dc2626;">UGX 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Withdrawals</div>
+            <div class="stat-value" id="statPendingWd" style="color: var(--warning);">UGX 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div id="section-users" class="section-panel">
+        <h2>User Management</h2>
+        <div class="card-box">
+          <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Adjust User Balance</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="adjPhone" class="form-control" placeholder="Phone / Email" style="margin-bottom: 0;" />
+            <input type="number" id="adjAmount" class="form-control" placeholder="Amount (UGX)" style="margin-bottom: 0;" />
+            <select id="adjType" class="form-control" style="margin-bottom: 0;">
+              <option value="add">Add Funds</option>
+              <option value="deduct">Deduct Funds</option>
+            </select>
+            <button class="btn" onclick="executeBalanceAdjustment()">Update Balance</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Phone / Email</th>
+                <th>Balance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Deposits -->
+      <div id="section-deposits" class="section-panel">
+        <h2>Deposits Audit & Approval</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Phone</th>
+                <th>Network</th>
+                <th>Amount</th>
+                <th>TxID</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="depositsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Withdrawals -->
+      <div id="section-withdrawals" class="section-panel">
+        <h2>Withdrawal Requests</h2>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Phone</th>
+                <th>Network</th>
+                <th>Gross / Net</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Robots -->
+      <div id="section-robots" class="section-panel">
+        <h2>Robot Catalog</h2>
+        <div class="card-box">
+          <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Deploy New Robot</h3>
+          <form id="addRobotForm">
+            <input type="text" id="robName" class="form-control" placeholder="Robot Name" required />
+            <input type="number" id="robPrice" class="form-control" placeholder="Price (UGX)" required />
+            <input type="number" id="robDaily" class="form-control" placeholder="Daily Return (UGX)" required />
+            <input type="number" id="robCycle" class="form-control" placeholder="Cycle Days" required />
+            <input type="text" id="robImg" class="form-control" placeholder="Image URL (optional)" />
+            <button type="submit" class="btn">Deploy Robot</button>
+          </form>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Daily</th>
+                <th>Cycle</th>
+              </tr>
+            </thead>
+            <tbody id="adminRobotsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div id="section-notifications" class="section-panel">
+        <h2>Site Notifications</h2>
+        <div class="card-box">
+          <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Broadcast Notification</h3>
+          <form id="sendNotificationForm">
+            <input type="text" id="notifTitle" class="form-control" placeholder="Title" required />
+            <textarea id="notifMessage" class="form-control" placeholder="Message..." rows="3" required></textarea>
+            <button type="submit" class="btn">Send Notification</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, addDoc, serverTimestamp, query, where, deleteDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNBYMMBSz2ZINXoIirST18OBI8sAW9jUI",
+      authDomain: "vortex-76dd2.firebaseapp.com",
+      projectId: "vortex-76dd2",
+      storageBucket: "vortex-76dd2.firebasestorage.app",
+      messagingSenderId: "512660258844",
+      appId: "1:512660258844:web:923a4582de6c56d4b3dfd9",
+      measurementId: "G-LJ2CK5T6BV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let cachedDatabase = { users: [], deposits: [], withdrawals: [], robots: [], notifications: [] };
+
+    window.showModal = function(title, message, isError = false) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      const icon = document.getElementById('modalIcon');
+      if (isError) {
+        icon.textContent = "⚠️";
+        icon.style.color = "var(--danger)";
+      } else {
+        icon.textContent = "✅";
+        icon.style.color = "var(--success)";
+      }
+      document.getElementById('customModal').classList.add('active');
+    };
+
+    window.closeCustomModal = function() {
+      document.getElementById('customModal').classList.remove('active');
+    };
+
+    window.toggleMobileMenu = function() {
+      document.getElementById('appSidebar').classList.toggle('mobile-open');
+    };
+
+    window.switchTab = function(tabId, el) {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('section-' + tabId).classList.add('active');
+      if (el) el.classList.add('active');
+      if (window.innerWidth < 768) document.getElementById('appSidebar').classList.remove('mobile-open');
+    };
+
+    window.logoutAdmin = function() {
+      document.getElementById('loginOverlay').classList.remove('hidden');
+    };
+
+    async function fetchCollectionStrict(colName) {
+      let results = [];
+      try {
+        const snap = await getDocs(collection(db, colName));
+        snap.docs.forEach(d => results.push({ docId: d.id, collectionName: colName, ...d.data() }));
+      } catch (e) { console.error("Error fetching " + colName, e); }
+      return results;
+    }
+
+    async function fetchFirebaseDB() {
+      cachedDatabase = {
+        users: await fetchCollectionStrict('users'),
+        deposits: await fetchCollectionStrict('deposits'),
+        withdrawals: await fetchCollectionStrict('withdrawals'),
+        robots: await fetchCollectionStrict('robots'),
+        notifications: await fetchCollectionStrict('notifications')
+      };
+      return cachedDatabase;
+    }
+
+    // ========== ADMIN LOGIN ==========
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const inputUser = document.getElementById('adminUser').value.trim();
+      const inputPass = document.getElementById('adminPass').value.trim();
+      let database = await fetchFirebaseDB();
+      
+      let validAdmin = database.users.find(u => {
+        const idMatch = (String(u.phone || u.email || '').trim() === inputUser);
+        const passMatch = (String(u.password || '') === inputPass);
+        const isAdmin = (u.isAdmin === true || u.isAdmin === "true");
+        return (idMatch && passMatch && isAdmin);
+      });
+
+      if (validAdmin || (inputUser === "admin@vortexrobot.com" && inputPass === "Isadminfrk27839&$")) {
+        try { await signInWithEmailAndPassword(auth, inputUser, inputPass); } catch (err) { console.error(err); }
+        document.getElementById('loginOverlay').classList.add('hidden');
+        loadAdminDashboard(database);
+        switchTab('dashboard', document.querySelector('.nav-item'));
+        showModal('Success', 'Connected successfully!');
+      } else {
+        showModal('Denied', 'Invalid credentials or not an admin.', true);
+      }
+    });
+
+    // ========== BALANCE ADJUSTMENT ==========
+    window.executeBalanceAdjustment = async function() {
+      const phone = document.getElementById('adjPhone').value.trim();
+      const amount = Number(document.getElementById('adjAmount').value);
+      const type = document.getElementById('adjType').value;
+      if (!phone || !amount || amount <= 0) { showModal('Error', 'Enter valid identifier and amount.', true); return; }
+
+      let targetUser = cachedDatabase.users.find(u => String(u.phone || u.email || '') === phone);
+      if (!targetUser) { showModal('Error', 'User not found.', true); return; }
+
+      try {
+        const multiplier = type === 'add' ? 1 : -1;
+        const newBalance = Number(targetUser.balance || 0) + (amount * multiplier);
+        await updateDoc(doc(db, 'users', targetUser.docId), { balance: newBalance });
+        showModal('Success', `Balance updated for ${phone}`);
+        document.getElementById('adjPhone').value = '';
+        document.getElementById('adjAmount').value = '';
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed to update balance.', true); }
+    };
+
+    // ========== DELETE USER ==========
+    window.deleteUser = async function(docId, userIdentifier) {
+      if (!confirm(`⚠️ Permanently delete data for "${userIdentifier}"? This cannot be undone.`)) return;
+      try {
+        await deleteDoc(doc(db, 'users', docId));
+        showModal('Success', 'User deleted from database.');
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed to delete user.', true); }
+    };
+
+    // ========== DEPOSIT APPROVAL (3-STEP FALLBACK) ==========
+    window.updateDepositStatus = async function(docId, colName, newStatus) {
+      try {
+        const depRef = doc(db, colName || "deposits", docId);
+        const depSnap = await getDoc(depRef);
+        if (!depSnap.exists()) { showModal('Error', 'Record not found.', true); return; }
+        const depData = depSnap.data();
+
+        if (newStatus === 'Approved' && !depData.credited) {
+          let userDoc = null;
+          // 1. Try UID
+          if (depData.userId) {
+            const snap = await getDocs(query(collection(db, 'users'), where('uid', '==', depData.userId)));
+            if (!snap.empty) userDoc = snap.docs[0];
+          }
+          // 2. Try Phone
+          if (!userDoc && depData.phone) {
+            const snap = await getDocs(query(collection(db, 'users'), where('phone', '==', depData.phone)));
+            if (!snap.empty) userDoc = snap.docs[0];
+          }
+          // 3. Try Email
+          if (!userDoc && depData.email) {
+            const snap = await getDocs(query(collection(db, 'users'), where('email', '==', depData.email)));
+            if (!snap.empty) userDoc = snap.docs[0];
+          }
+
+          if (userDoc) {
+            const currentBalance = Number(userDoc.data().balance || 0);
+            const depositAmount = Number(depData.amount || 0);
+            await updateDoc(userDoc.ref, { balance: currentBalance + depositAmount });
+            await addDoc(collection(db, 'transactions'), {
+              userId: userDoc.data().uid || userDoc.id,
+              phone: depData.phone || userDoc.data().phone,
+              type: 'Deposit', title: `Deposit Approved - TX: ${depData.transactionId || 'N/A'}`,
+              amount: depositAmount, category: 'deposit', timestamp: serverTimestamp()
+            });
+            await updateDoc(depRef, { status: 'Approved', credited: true });
+            showModal('Success', `UGX ${depositAmount.toLocaleString()} approved and credited!`);
+          } else {
+            await updateDoc(depRef, { status: 'Approved' });
+            showModal('Warning', 'Approved, but user not found. Please add funds manually.', true);
+          }
+        } else {
+          await updateDoc(depRef, { status: newStatus });
+          showModal('Success', `Status updated to ${newStatus}`);
+        }
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed: ' + err.message, true); }
+    };
+
+    // ========== WITHDRAWAL REJECTION (AUTO-REFUND) ==========
+    window.updateWithdrawalStatus = async function(docId, colName, newStatus) {
+      try {
+        const wdRef = doc(db, colName || "withdrawals", docId);
+        const wdSnap = await getDoc(wdRef);
+        if (!wdSnap.exists()) { showModal('Error', 'Record not found.', true); return; }
+        const wdData = wdSnap.data();
+
+        if (newStatus === 'Rejected' && !wdData.refunded) {
+          let userDoc = null;
+          if (wdData.userId) {
+            const snap = await getDocs(query(collection(db, 'users'), where('uid', '==', wdData.userId)));
+            if (!snap.empty) userDoc = snap.docs[0];
+          }
+          if (!userDoc && wdData.phone) {
+            const snap = await getDocs(query(collection(db, 'users'), where('phone', '==', wdData.phone)));
+            if (!snap.empty) userDoc = snap.docs[0];
+          }
+
+          if (userDoc) {
+            const currentBalance = Number(userDoc.data().balance || 0);
+            const refundAmount = Number(wdData.grossAmount || 0);
+            await updateDoc(userDoc.ref, { balance: currentBalance + refundAmount });
+            await addDoc(collection(db, 'transactions'), {
+              userId: userDoc.data().uid || userDoc.id,
+              phone: wdData.phone || userDoc.data().phone,
+              type: 'Refund', title: `Withdrawal Rejected: UGX ${refundAmount.toLocaleString()} refunded`,
+              amount: refundAmount, category: 'refund', timestamp: serverTimestamp()
+            });
+          }
+          await updateDoc(wdRef, { status: 'Rejected', refunded: true });
+          showModal('Success', 'Withdrawal rejected and funds refunded.');
+        } else {
+          await updateDoc(wdRef, { status: newStatus });
+          showModal('Success', `Status updated to ${newStatus}`);
+        }
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed: ' + err.message, true); }
+    };
+
+    // ========== FORMS ==========
+    document.getElementById('addRobotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, "robots"), {
+          name: document.getElementById('robName').value.trim(),
+          price: Number(document.getElementById('robPrice').value),
+          daily: Number(document.getElementById('robDaily').value),
+          cycle: Number(document.getElementById('robCycle').value),
+          img: document.getElementById('robImg').value.trim() || "https://i.ibb.co/CKMWP6kF/ei-1787282777392-removebg-preview.png"
+        });
+        showModal('Success', 'Robot deployed!');
+        e.target.reset();
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed to save robot.', true); }
+    });
+
+    document.getElementById('sendNotificationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, "notifications"), {
+          title: document.getElementById('notifTitle').value.trim(),
+          message: document.getElementById('notifMessage').value.trim(),
+          createdAt: serverTimestamp()
+        });
+        showModal('Success', 'Notification sent!');
+        e.target.reset();
+        cachedDatabase = await fetchFirebaseDB();
+        loadAdminDashboard(cachedDatabase);
+      } catch (err) { showModal('Error', 'Failed to send.', true); }
+    });
+
+    // ========== RENDER DASHBOARD ==========
+    function loadAdminDashboard(database) {
+      if (!database) database = cachedDatabase;
+
+      document.getElementById('statTotalUsers').textContent = database.users.length;
+      
+      const mtnTotal = database.deposits.filter(d => String(d.network || '').toUpperCase() === 'MTN' && String(d.status || '').toLowerCase() === 'approved').reduce((sum, d) => sum + Number(d.amount || 0), 0);
+      const airtelTotal = database.deposits.filter(d => String(d.network || '').toUpperCase() === 'AIRTEL' && String(d.status || '').toLowerCase() === 'approved').reduce((sum, d) => sum + Number(d.amount || 0), 0);
+      const pendingWdTotal = database.withdrawals.filter(w => String(w.status || '').toLowerCase() === 'pending').reduce((sum, w) => sum + Number(w.grossAmount || 0), 0);
+
+      document.getElementById('statMtnDep').textContent = 'UGX ' + mtnTotal.toLocaleString();
+      document.getElementById('statAirtelDep').textContent = 'UGX ' + airtelTotal.toLocaleString();
+      document.getElementById('statPendingWd').textContent = 'UGX ' + pendingWdTotal.toLocaleString();
+
+      // Users Table
+      let usersHtml = database.users.length === 0 ? '<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-muted);">No users found.</td></tr>' : '';
+      database.users.forEach(u => {
+        const roleBadge = u.isAdmin ? ' <span class="badge badge-success">Admin</span>' : '';
+        const userIdentifier = u.phone || u.email || 'N/A';
+        usersHtml += `<tr>
+          <td>${userIdentifier}${roleBadge}</td>
+          <td style="font-weight:700; color:var(--primary);">UGX ${Number(u.balance || 0).toLocaleString()}</td>
+          <td><button class="btn btn-outline btn-sm" onclick="deleteUser('${u.docId}', '${userIdentifier}')">Delete</button></td>
+        </tr>`;
+      });
+      document.getElementById('usersTableBody').innerHTML = usersHtml;
+
+      // Deposits Table
+      let depHtml = database.deposits.length === 0 ? '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">No deposits found.</td></tr>' : '';
+      database.deposits.forEach(d => {
+        const st = String(d.status || 'pending').toLowerCase();
+        const badge = st === 'approved' ? '<span class="badge badge-success">Approved</span>' : st === 'rejected' ? '<span class="badge badge-danger">Rejected</span>' : '<span class="badge badge-warning">Pending</span>';
+        const actions = st === 'pending' ? `<button class="btn btn-success btn-sm" onclick="updateDepositStatus('${d.docId}', '${d.collectionName}', 'Approved')">Approve</button> <button class="btn btn-danger btn-sm" onclick="updateDepositStatus('${d.docId}', '${d.collectionName}', 'Rejected')">Reject</button>` : 'Processed';
+        depHtml += `<tr>
+          <td>${d.phone || 'N/A'}</td>
+          <td>${d.network || 'N/A'}</td>
+          <td style="font-weight:700;">UGX ${Number(d.amount || 0).toLocaleString()}</td>
+          <td style="font-size:11px; color:var(--text-muted);">${d.transactionId || 'N/A'}</td>
+          <td>${badge}</td>
+          <td>${actions}</td>
+        </tr>`;
+      });
+      document.getElementById('depositsTableBody').innerHTML = depHtml;
+
+      // Withdrawals Table
+      let wdHtml = database.withdrawals.length === 0 ? '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No withdrawals found.</td></tr>' : '';
+      database.withdrawals.forEach(w => {
+        const st = String(w.status || 'pending').toLowerCase();
+        const badge = st === 'approved' ? '<span class="badge badge-success">Approved</span>' : st === 'rejected' ? '<span class="badge badge-danger">Rejected</span>' : '<span class="badge badge-warning">Pending</span>';
+        const actions = st === 'pending' ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawalStatus('${w.docId}', '${w.collectionName}', 'Approved')">Approve</button> <button class="btn btn-danger btn-sm" onclick="updateWithdrawalStatus('${w.docId}', '${w.collectionName}', 'Rejected')">Reject</button>` : 'Processed';
+        wdHtml += `<tr>
+          <td>${w.phone || 'N/A'}</td>
+          <td>${w.network || 'N/A'}</td>
+          <td><b>UGX ${Number(w.grossAmount || 0).toLocaleString()}</b><br><span style="font-size:11px; color:var(--text-muted);">Net: UGX ${Number(w.netAmount || 0).toLocaleString()}</span></td>
+          <td>${badge}</td>
+          <td>${actions}</td>
+        </tr>`;
+      });
+      document.getElementById('withdrawalsTableBody').innerHTML = wdHtml;
+
+      // Robots Table
+      let robHtml = database.robots.length === 0 ? '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No robots found.</td></tr>' : '';
+      database.robots.forEach(r => {
+        robHtml += `<tr>
+          <td style="font-weight:600;">${r.name || 'N/A'}</td>
+          <td>UGX ${Number(r.price || 0).toLocaleString()}</td>
+          <td>UGX ${Number(r.daily || 0).toLocaleString()}</td>
+          <td>${r.cycle || 0} Days</td>
+        </tr>`;
+      });
+      document.getElementById('adminRobotsTableBody').innerHTML = robHtml;
+    }
+  </script>
+</body>
+</html>

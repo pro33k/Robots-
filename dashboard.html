@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vortex Robot - Account</title>
+  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" />
+  <style>
+    :root {
+      --primary: #f97316;
+      --primary-dark: #ea580c;
+      --primary-light: #fff7ed;
+      --accent: #ff9e3d;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #f1f5f9;
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    
+    body {
+      background: var(--bg-body) !important;
+      color: var(--text-main) !important;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 90px 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .coins-rain-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 999; overflow: hidden;
+    }
+
+    .coin {
+      position: absolute; top: -50px; width: 22px; height: 22px;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #ff8c00);
+      border: 2px solid #b8860b; border-radius: 50%;
+      box-shadow: 0 0 6px rgba(255, 215, 0, 0.8), inset 0 0 4px rgba(255, 255, 255, 0.6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #7c4a03;
+      animation: fallCoin linear infinite;
+    }
+
+    @keyframes fallCoin {
+      0% { transform: translateY(-50px) rotate(0deg); opacity: 0.9; }
+      100% { transform: translateY(105vh) rotate(360deg); opacity: 0.4; }
+    }
+
+    .top-orange-section {
+      width: 100%;
+      background: linear-gradient(135deg, #ff7e00 0%, #ff9e3d 100%);
+      display: flex; flex-direction: column; align-items: center;
+      padding-bottom: 24px;
+      border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;
+      box-shadow: 0 10px 25px rgba(255, 126, 0, 0.15);
+      margin-bottom: 16px; position: relative; z-index: 2;
+    }
+
+    .app-header {
+      width: 100%; max-width: 1350px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; margin-bottom: 6px;
+    }
+    
+    .brand-box { display: flex; align-items: center; gap: 12px; }
+    
+    .brand-logo-img {
+      width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+      border: 2px solid #ffffff; box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+    
+    .brand-text { line-height: 1.2; }
+    .brand-title { font-size: 1.15rem; font-weight: 700; color: #ffffff; }
+    .brand-sub { font-size: 0.72rem; font-weight: 500; color: #ffe4e6; letter-spacing: 0.5px; display: block; margin-top: 2px; }
+
+    .header-right { display: flex; align-items: center; gap: 10px; }
+
+    .phone-number-box {
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px; padding: 6px 14px;
+    }
+    .phone-text { font-weight: 600; font-size: 0.8rem; color: #ffffff; }
+
+    .notification-btn {
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%; width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+    }
+    .notification-btn svg { width: 18px; height: 18px; stroke: #ffffff; }
+    .notification-dot {
+      position: absolute; top: 6px; right: 7px; width: 7px; height: 7px;
+      background: #ef4444; border-radius: 50%; border: 1px solid #ff7e00;
+    }
+
+    .app-container {
+      width: 100%; max-width: 480px; padding: 0 16px; margin: 0 auto; position: relative; z-index: 2;
+    }
+
+    @media (min-width: 768px) {
+      .app-container { max-width: 720px; }
+      .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    }
+    @media (min-width: 1024px) {
+      .app-container { max-width: 1050px; }
+      .dashboard-grid { grid-template-columns: 1.2fr 1fr; }
+    }
+
+    .slider-container {
+      width: 100%; height: 160px; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); position: relative; background: #ffffff;
+    }
+    .slider-track { display: flex; width: 200%; height: 100%; animation: slideAnimation 8s infinite; }
+    .slider-slide { width: 50%; height: 100%; flex-shrink: 0; }
+    .slider-slide img { width: 100%; height: 100%; object-fit: cover; }
+
+    @keyframes slideAnimation {
+      0%, 40% { transform: translateX(0); }
+      50%, 90% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+
+    .balance-card, .vault-card, .banner-card, .support-banner-card {
+      background: var(--card-bg);
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      position: relative;
+    }
+
+    .balance-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .balance-amount-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
+    .balance-number { font-size: 2rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+    .currency-tag { font-size: 0.95rem; font-weight: 700; color: var(--primary); }
+
+    .action-grid { display: flex; gap: 12px; margin-bottom: 16px; }
+    .btn {
+      flex: 1; padding: 12px; border-radius: 14px; font-weight: 700; font-size: 0.88rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+    }
+    .btn:active { transform: scale(0.98); }
+    
+    .btn-deposit { 
+      background: linear-gradient(135deg, #ff7e00, #ff9e3d); 
+      color: #fff; 
+    }
+    
+    .btn-withdraw { 
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0); 
+      border: 1px solid #cbd5e1; 
+      color: #334155; 
+    }
+
+    .feature-bar { display: flex; background: #f8fafc; border-radius: 14px; padding: 12px; border: 1px solid #e2e8f0; align-items: center; justify-content: space-around; }
+    .feature-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; color: #475569; cursor: pointer; }
+    .feature-divider { width: 1px; height: 26px; background: #e2e8f0; }
+
+    .banner-card { background: linear-gradient(135deg, #ff7e00 0%, #e06d00 100%); color: #ffffff; border: none; }
+    .banner-badge { background: rgba(255, 255, 255, 0.25); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+    .banner-title { font-size: 1.05rem; font-weight: 700; margin: 4px 0 6px 0; color: #fff; }
+    .banner-desc { font-size: 0.78rem; color: #fff7ed; margin: 0; line-height: 1.4; }
+
+    .discount-badge { background: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-block; margin-bottom: 8px; border: 1px solid #fed7aa; }
+    .speed-badge { float: right; font-size: 0.7rem; font-weight: 700; color: var(--primary); background: rgba(255, 126, 0, 0.08); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(255, 126, 0, 0.2); }
+    .vault-name { font-size: 1.05rem; font-weight: 800; margin: 0 0 12px 0; color: var(--text-main); }
+
+    .vault-grid { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+    .vault-graphic { flex: 0 0 110px; height: 125px; display: flex; align-items: center; justify-content: center; }
+    .vault-machine-img { width: 100%; height: 125px; object-fit: contain; }
+
+    .vault-metrics { flex: 1; display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; }
+    .metric-row { display: flex; justify-content: space-between; align-items: baseline; }
+    .m-label { color: var(--text-muted); font-weight: 500; }
+    .m-val.strike { text-decoration: line-through; color: #94a3b8; }
+    .m-val.cyan { color: #7c3aed; font-weight: 700; }
+    .m-val.gold { color: #d97706; font-weight: 700; }
+
+    .btn-invest {
+      width: 100%; 
+      background: linear-gradient(135deg, #ff7e00, #ff9e3d); 
+      border: none; 
+      padding: 14px 0;
+      border-radius: 30px; 
+      color: #fff; 
+      font-weight: 700; 
+      font-size: 0.95rem; 
+      cursor: pointer;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+    }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid #e2e8f0;
+      display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    }
+    .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); text-decoration: none; font-size: 0.72rem; gap: 4px; font-weight: 500; }
+    .nav-link.active { color: var(--primary); font-weight: 700; }
+    .nav-link svg { width: 22px; height: 22px; stroke-width: 2; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 1100; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { 
+      background: #ffffff; width: 90%; max-width: 420px; border-radius: 24px; padding: 24px; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 1px solid #f1f5f9;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-content h3 { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 14px; }
+    
+    .modal-input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; margin-bottom: 12px; color: var(--text-main);
+    }
+    .modal-input:focus { border-color: var(--primary); }
+
+    .network-btn {
+      flex: 1; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; border: 1.5px solid #cbd5e1; background: #f8fafc; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;
+    }
+    .network-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+
+    /* NEW: Merchant Info Box Styles */
+    .merchant-info-box {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border: 2px solid #fed7aa;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 14px 0;
+    }
+    .merchant-info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px dashed #fdba74;
+    }
+    .merchant-info-row:last-child { border-bottom: none; }
+    .merchant-label { font-size: 0.75rem; color: #9a3412; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .merchant-value { font-size: 0.95rem; color: #0f172a; font-weight: 700; }
+    .copy-merchant-btn {
+      background: #ea580c; color: white; border: none; padding: 6px 12px; border-radius: 8px;
+      font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .copy-merchant-btn:active { transform: scale(0.95); }
+
+    .instructions-box {
+      background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 12px;
+      margin: 12px 0; font-size: 0.82rem; color: #0c4a6e; line-height: 1.6;
+    }
+    .instructions-box ol { padding-left: 18px; margin: 0; }
+    .instructions-box li { margin-bottom: 4px; }
+
+    .step-indicator {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;
+    }
+    .step-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0;
+    }
+    .step-dot.active { background: var(--primary); width: 24px; border-radius: 4px; }
+
+    /* NEW: Professional Loading Spinner */
+    .loading-overlay {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 20px; text-align: center;
+    }
+    .spinner-ring {
+      width: 60px; height: 60px; border: 4px solid #fed7aa;
+      border-top: 4px solid #ea580c; border-radius: 50%;
+      animation: spinRing 1s linear infinite; margin-bottom: 20px;
+    }
+    @keyframes spinRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px;
+    }
+    .loading-subtext {
+      font-size: 0.78rem; color: var(--text-muted);
+    }
+    .loading-dots::after {
+      content: ''; animation: loadingDots 1.5s infinite;
+    }
+    @keyframes loadingDots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    .back-btn {
+      background: transparent; border: 1px solid #cbd5e1; color: #475569;
+      padding: 8px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="coins-rain-container" id="coinsRain"></div>
+
+  <div class="top-orange-section">
+    <header class="app-header">
+      <div class="brand-box">
+        <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Vortex Logo" class="brand-logo-img" />
+        <div class="brand-text">
+          <h1 class="brand-title">Vortex</h1>
+          <span class="brand-sub">Vaults & Account</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="phone-number-box">
+          <span class="phone-text" id="headerPhoneDisplay">708157189</span>
+        </div>
+        <button class="notification-btn" id="openNotifModalBtn" aria-label="Notifications">
+          <span class="notification-dot"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-container" style="padding-bottom: 0;">
+      <div class="slider-container">
+        <div class="slider-track">
+          <div class="slider-slide"><img src="https://i.ibb.co/HLnC1W9n/152e0601cbe18949ab7a265e533fa6d3.jpg" alt="Banner 1" /></div>
+          <div class="slider-slide"><img src="https://i.ibb.co/B5dqKGfq/42031fdd82625cae0c65e9ea8e6ef792.jpg" alt="Banner 2" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <main class="main-content">
+      <div class="dashboard-grid">
+        <section class="balance-card">
+          <div class="balance-header">
+            <span>Total Balance Available</span>
+            <button class="eye-btn" id="eyeToggle" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <div class="balance-amount-row">
+            <span class="balance-number" id="balanceValue">24,500</span>
+            <span class="currency-tag">UGX</span>
+          </div>
+
+          <div class="action-grid">
+            <button class="btn btn-deposit" id="openDepositModal"><span>+</span> Deposit</button>
+            <button class="btn btn-withdraw" id="openCashOutModal"><span>↑</span> Cash Out</button>
+          </div>
+
+          <div class="feature-bar">
+            <div class="feature-item" id="openChargesModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff7e00" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Chargers</span>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item" id="openInviteModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
+              <span>Invite</span>
+            </div>
+            <div class="feature-divider"></div>
+            <div class="feature-item" id="openHistoryModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+              <span>History</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="banner-card">
+          <span class="banner-badge">Team Growth</span>
+          <h2 class="banner-title">Invite Friends & Earn More</h2>
+          <p class="banner-desc">Earn up to 13% commission on every active referral investment directly into your wallet.</p>
+        </section>
+      </div>
+
+      <section class="projects-section" style="margin-top: 6px;">
+        <div class="vault-grid-container">
+          <div class="vault-card">
+            <span class="discount-badge">Starter Robot (90 Days - 15% Daily)</span>
+            <span class="speed-badge">15% daily</span>
+            <h3 class="vault-name">Vortex Robot ⚡️</h3>
+
+            <div class="vault-grid">
+              <div class="vault-graphic">
+                <img src="https://i.ibb.co/CKMWP6kF/ei-1787282777392-removebg-preview.png" alt="Vortex Machine" class="vault-machine-img" />
+              </div>
+              <div class="vault-metrics">
+                <div class="metric-row"><span class="m-label">Price</span><span class="m-val strike">UGX 40,000</span></div>
+                <div class="metric-row"><span class="m-label">Daily income</span><span class="m-val cyan">UGX 6,000</span></div>
+                <div class="metric-row"><span class="m-label">Total Yield</span><span class="m-val gold">UGX 540,000</span></div>
+              </div>
+            </div>
+            <button class="btn-invest" data-price="40000" data-daily="6000" data-robot="Vortex Robot ⚡️">Invest now</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="support-banner-card" style="display: flex; align-items: center; justify-content: space-between; background: var(--primary-light); border: 1px solid #fed7aa; border-radius: 16px; padding: 16px;">
+        <div>
+          <div style="font-size: 0.9rem; font-weight: 700; color: #c2410c; margin-bottom: 2px;">Need Help?</div>
+          <div style="font-size: 0.75rem; color: #9a3412;">Our customer care team is available 24/7.</div>
+        </div>
+        <a href="https://t.me/" target="_blank" style="background: #ea580c; color: white; padding: 8px 14px; border-radius: 10px; font-size: 0.78rem; font-weight: 700; text-decoration: none; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);">Live Chat</a>
+      </div>
+    </main>
+  </div>
+
+  <!-- NEW: Multi-Step Deposit Modal -->
+  <div id="depositModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="step-indicator">
+        <div class="step-dot active" id="stepDot1"></div>
+        <div class="step-dot" id="stepDot2"></div>
+        <div class="step-dot" id="stepDot3"></div>
+      </div>
+
+      <!-- STEP 1: Enter Amount & Phone -->
+      <div id="depositStep1">
+        <h3>Deposit Funds</h3>
+        <div id="depositNetworkOptions" style="display:flex; gap:10px; margin-bottom:14px;">
+          <button class="network-btn active" data-network="airtel">Airtel</button>
+          <button class="network-btn" data-network="mtn">MTN</button>
+        </div>
+        <input type="number" id="depositAmountInput" class="modal-input" placeholder="Amount (Min 20,000 UGX)" />
+        <input type="number" id="userPhoneInput" class="modal-input" placeholder="Your Registered Phone Number" />
+        <button id="proceedDepositBtn" class="btn btn-deposit" style="width:100%;">Proceed to Instructions</button>
+      </div>
+
+      <!-- STEP 2: Merchant Details & Instructions -->
+      <div id="depositStep2" style="display:none;">
+        <button class="back-btn" id="backToStep1Btn">← Back</button>
+        <h3>Send Money To</h3>
+        <div class="merchant-info-box">
+          <div class="merchant-info-row">
+            <span class="merchant-label">Network</span>
+            <span class="merchant-value" id="displayMerchantNetwork">MTN</span>
+          </div>
+          <div class="merchant-info-row">
+            <span class="merchant-label">Account Name</span>
+            <span class="merchant-value" id="displayMerchantName">kakandefrank</span>
+          </div>
+          <div class="merchant-info-row">
+            <span class="merchant-label">Phone Number</span>
+            <span class="merchant-value" id="displayMerchantNumber">0765050916</span>
+          </div>
+          <div class="merchant-info-row">
+            <span class="merchant-label">Amount</span>
+            <span class="merchant-value" id="displayDepositAmount" style="color:#ea580c;">UGX 0</span>
+          </div>
+          <div style="text-align:center; margin-top:10px;">
+            <button class="copy-merchant-btn" id="copyMerchantNumberBtn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Number
+            </button>
+          </div>
+        </div>
+
+        <div class="instructions-box">
+          <strong>📋 How to Deposit:</strong>
+          <ol>
+            <li><b>Copy</b> the merchant number above</li>
+            <li>Dial <b id="ussdCodeDisplay">*185#</b> (Airtel) or <b>*165#</b> (MTN)</li>
+            <li>Select <b>"Send Money"</b> → Enter the copied number</li>
+            <li>Enter the exact amount shown above</li>
+            <li>Enter your Mobile Money PIN to confirm</li>
+            <li>After sending, <b>paste your Transaction ID</b> below</li>
+          </ol>
+        </div>
+
+        <input type="text" id="transactionIdInput" class="modal-input" placeholder="Paste Transaction ID / Message here" style="text-transform: uppercase;" />
+        <button id="confirmDepositBtn" class="btn btn-deposit" style="width:100%;">Submit Deposit Proof</button>
+      </div>
+
+      <!-- STEP 3: Loading Animation -->
+      <div id="depositStep3" style="display:none;">
+        <div class="loading-overlay">
+          <div class="spinner-ring"></div>
+          <div class="loading-text">Processing Your Deposit<span class="loading-dots"></span></div>
+          <div class="loading-subtext">Please wait while we verify your transaction</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cashOutModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Cash Out</h3>
+      <div id="cashOutNetworkOptions" style="display:flex; gap:10px; margin-bottom:14px;">
+        <button class="network-btn active" data-network="airtel">Airtel</button>
+        <button class="network-btn" data-network="mtn">MTN</button>
+      </div>
+      <input type="number" id="cashOutAmountInput" class="modal-input" placeholder="Amount (Min 5,000)" />
+      <input type="number" id="cashOutPhoneInput" class="modal-input" placeholder="Phone Number" />
+      <button id="submitCashOutBtn" class="btn btn-deposit" style="width:100%;">Submit Request</button>
+    </div>
+  </div>
+
+  <div id="chargesModal" class="modal-overlay"><div class="modal-content"><h3>Charges Policy</h3><p style="margin:10px 0 16px 0; font-size:0.9rem; color:var(--text-muted); line-height:1.5;">Withdrawals carry a standard 10% network transaction fee.</p><button id="okChargesModal" class="btn btn-deposit" style="width:100%;">OK</button></div></div>
+  <div id="inviteModal" class="modal-overlay"><div class="modal-content"><h3>Invite Friends</h3><p style="margin:10px 0 16px 0; font-size:0.85rem; word-break:break-all; background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #cbd5e1;" id="referralLinkText">https://vortexrobot.com/ref/</p><button id="copyInviteBtn" class="btn btn-deposit" style="width:100%; margin-bottom:8px;">Copy Link</button><button id="okInviteModal" class="btn btn-withdraw" style="width:100%;">Close</button></div></div>
+  <div id="historyModal" class="modal-overlay"><div class="modal-content"><h3>Transaction History</h3><p style="margin:10px 0 16px 0; font-size:0.9rem; color:var(--text-muted); line-height:1.5;">Your recent deposits, cash outs, and investment logs will appear here.</p><button id="okHistoryModal" class="btn btn-deposit" style="width:100%;">OK</button></div></div>
+  <div id="notifModal" class="modal-overlay"><div class="modal-content"><h3>Notifications</h3><button id="okNotifModal" class="btn btn-deposit" style="width:100%; margin-top:10px;">OK</button></div></div>
+
+  <div id="customAlertModal" class="modal-overlay">
+    <div class="modal-content" style="text-align:center;">
+      <h3 id="customAlertTitle" style="margin-bottom:8px;">Alert</h3>
+      <p id="customAlertMessage" style="margin-bottom:20px; font-size:0.9rem; color:var(--text-muted);"></p>
+      <button id="customAlertCloseBtn" class="btn btn-deposit" style="width:100%;">OK</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      <span>Account</span>
+    </a>
+    <a href="Vault.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Robots</span>
+    </a>
+    <a href="network.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <span>Network</span>
+    </a>
+    <a href="portfolio.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+      <span>Portfolio</span>
+    </a>
+  </nav>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById('coinsRain');
+      for (let i = 0; i < 14; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'coin';
+        coin.textContent = '🪙';
+        coin.style.left = `${Math.random() * 100}vw`;
+        coin.style.animationDuration = `${3 + Math.random() * 3.5}s`;
+        coin.style.animationDelay = `${Math.random() * 5}s`;
+        container.appendChild(coin);
+      }
+    });
+  </script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

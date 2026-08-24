@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vortex Robot · Portfolio</title>
+  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" />
+  <style>
+    :root {
+      --vortex-orange: #f97316;
+      --vortex-orange-dark: #ea580c;
+      --vortex-bg-app: #f8fafc;
+      --vortex-card-bg: #ffffff;
+      --vortex-text-main: #0f172a;
+      --vortex-text-muted: #64748b;
+      --vortex-border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--vortex-bg-app);
+      color: var(--vortex-text-main);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 90px;
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) { .app-container { max-width: 720px; } }
+    @media (min-width: 1024px) { .app-container { max-width: 960px; } }
+
+    .app-header {
+      background: linear-gradient(180deg, var(--vortex-orange) 0%, var(--vortex-orange-dark) 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    
+    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-size: 18px; font-weight: 800; color: #ffffff; line-height: 1.1; }
+    .brand-sub { font-size: 11px; color: rgba(255, 255, 255, 0.9); }
+    .brand-logo-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #ffffff; }
+    
+    .phone-number-box {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .phone-text { color: #ffffff; font-size: 12px; font-weight: 700; }
+
+    .main-content { padding: 16px; flex: 1; }
+
+    .portfolio-summary-card {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      position: relative;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .portfolio-user-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px; 
+      padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .portfolio-user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #ffffff; }
+    .portfolio-user-info { display: flex; flex-direction: column; }
+    .portfolio-username { font-size: 14px; font-weight: 700; color: #fff; }
+    .portfolio-user-role { font-size: 11px; color: rgba(255, 255, 255, 0.85); }
+
+    .portfolio-summary-label { font-size: 12px; color: rgba(255, 255, 255, 0.85); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .portfolio-summary-amount { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 16px; }
+    
+    .portfolio-metrics-row { display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.25); padding-top: 14px; }
+    .p-metric-item { flex: 1; text-align: center; }
+    .p-metric-item:not(:last-child) { border-right: 1px solid rgba(255, 255, 255, 0.25); }
+    .p-metric-label { font-size: 11px; color: rgba(255, 255, 255, 0.85); margin-bottom: 4px; font-weight: 600; }
+    .p-metric-val { font-size: 14px; font-weight: 700; color: #fff; }
+    .p-metric-val.cyan { color: #e0f2fe; }
+    .p-metric-val.gold { color: #fef08a; }
+    .p-metric-val.green { color: #dcfce7; }
+
+    .invested-robot-card {
+      background: var(--vortex-card-bg); border: 1px solid var(--vortex-border); border-radius: 16px; 
+      padding: 16px; margin-bottom: 14px; position: relative;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+    .invested-robot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .robot-name-badge { display: flex; align-items: center; gap: 8px; }
+    .robot-mini-img { width: 36px; height: 36px; object-fit: contain; }
+    .robot-title-text { font-size: 15px; font-weight: 700; color: var(--vortex-text-main); }
+    .robot-status-pill {
+      font-size: 10px; font-weight: 700; background: rgba(22, 163, 74, 0.1); color: #16a34a; 
+      padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+    
+    .robot-countdown-banner {
+      background: #fff7ed; border: 1px solid #ffedd5; border-radius: 8px;
+      padding: 8px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+    }
+    .countdown-label { color: #9a3412; font-weight: 600; }
+    .countdown-timer-val { color: #ea580c; font-weight: 800; font-family: monospace; font-size: 13px; }
+
+    .invested-robot-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; 
+      background: var(--vortex-bg-app); padding: 12px; border-radius: 10px; border: 1px solid var(--vortex-border);
+    }
+    .inv-metric { display: flex; flex-direction: column; gap: 2px; }
+    .inv-label { font-size: 11px; color: var(--vortex-text-muted); font-weight: 600; }
+    .inv-val { font-size: 13px; font-weight: 700; color: var(--vortex-text-main); }
+
+    .empty-state { 
+      text-align: center; padding: 35px 20px; background: var(--vortex-card-bg); 
+      border: 1px solid var(--vortex-border); border-radius: 14px; color: var(--vortex-text-muted); 
+      font-size: 13px; line-height: 1.5;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+
+    .section-title {
+      font-size: 14px; font-weight: 700; color: var(--vortex-text-main); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .indicator-bar { width: 4px; height: 16px; background-color: var(--vortex-orange); border-radius: 2px; }
+
+    .logout-container { margin-top: 24px; margin-bottom: 20px; }
+    .logout-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; 
+      background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); 
+      color: #dc2626; font-size: 14px; font-weight: 700; padding: 14px; border-radius: 12px; 
+      cursor: pointer; text-decoration: none;
+      box-shadow: rgba(50, 50, 93, 0.15) 0px 30px 60px -12px, rgba(0, 0, 0, 0.2) 0px 18px 36px -18px, rgba(10, 37, 64, 0.2) 0px -2px 6px 0px inset;
+      transition: background 0.2s;
+    }
+    .logout-btn:active { background: rgba(239, 68, 68, 0.15); }
+
+    .modal-flag-badge {
+      position: absolute; top: 0; right: 0; width: 44px; height: 32px; 
+      border-top-right-radius: 16px; border-bottom-left-radius: 16px; 
+      overflow: hidden; display: flex; flex-direction: column; box-shadow: -2px 2px 6px rgba(0,0,0,0.15);
+    }
+    .flag-stripe { flex: 1; width: 100%; }
+    .flag-black { background: #000000; }
+    .flag-yellow { background: #FCD116; }
+    .flag-red { background: #D9381E; }
+    .flag-crest-circle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      width: 10px; height: 10px; background: #ffffff; border-radius: 50%; 
+      display: flex; align-items: center; justify-content: center;
+    }
+    .flag-crest-inner { width: 5px; height: 5px; background: #D9381E; border-radius: 50%; }
+
+    .support-float-wrap {
+      position: fixed; right: 16px; bottom: 75px; display: flex; flex-direction: column; align-items: center; z-index: 998;
+    }
+    .support-label {
+      font-size: 10px; font-weight: 700; background: #0f172a; color: #ffffff; 
+      padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .support-btn-float {
+      width: 45px; height: 45px; background: #25D366; border-radius: 50%; border: none; 
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+      cursor: pointer; text-decoration: none; transition: transform 0.2s;
+    }
+    .support-btn-float:active { transform: scale(0.95); }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #ffffff;
+      border-top: 1px solid var(--vortex-border); display: flex; justify-content: space-around;
+      align-items: center; z-index: 999; box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    }
+    .bottom-nav .nav-link {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-decoration: none; color: var(--vortex-text-muted); font-size: 11px; font-weight: 600; 
+      gap: 3px; flex: 1; height: 100%; transition: color 0.2s;
+    }
+    .bottom-nav .nav-link.active { color: var(--vortex-orange); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand-box">
+        <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Vortex Logo" class="brand-logo-img" />
+        <div class="brand-text">
+          <h1 class="brand-title">Portfolio</h1>
+          <span class="brand-sub">Active Robots</span>
+        </div>
+      </div>
+      <div class="phone-number-box">
+        <span class="phone-text" id="headerUserPhone">Loading...</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="portfolio-summary-card">
+        <div class="modal-flag-badge">
+          <div class="flag-stripe flag-black"></div><div class="flag-stripe flag-yellow"></div><div class="flag-stripe flag-red"></div>
+          <div class="flag-stripe flag-black"></div><div class="flag-stripe flag-yellow"></div><div class="flag-stripe flag-red"></div>
+          <div class="flag-crest-circle"><div class="flag-crest-inner"></div></div>
+        </div>
+        
+        <div class="portfolio-user-header">
+          <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="User Avatar" class="portfolio-user-avatar" />
+          <div class="portfolio-user-info">
+            <span class="portfolio-username">Vortex Investor</span>
+            <span class="portfolio-user-role" id="portfolioUserRole">UG...</span>
+          </div>
+        </div>
+
+        <div class="portfolio-summary-label">Total Active Investments</div>
+        <div class="portfolio-summary-amount" id="summaryTotalInvestment">UGX 0</div>
+        
+        <div class="portfolio-metrics-row">
+          <div class="p-metric-item">
+            <div class="p-metric-label">Daily Yield</div>
+            <div class="p-metric-val cyan" id="summaryDailyYield">UGX 0</div>
+          </div>
+          <div class="p-metric-item">
+            <div class="p-metric-label">Total Earned</div>
+            <div class="p-metric-val gold" id="summaryTotalEarned">UGX 0</div>
+          </div>
+          <div class="p-metric-item">
+            <div class="p-metric-label">Active Units</div>
+            <div class="p-metric-val" id="summaryActiveUnits">0 Robots</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span class="indicator-bar"></span>
+        <h2>My Deployed Robots</h2>
+      </div>
+
+      <!-- Deployed Robot Container (Populated securely by script.js) -->
+      <div id="portfolioRobotsContainer">
+        <div class="empty-state">Loading your portfolio...</div>
+      </div>
+
+      <div class="logout-container">
+        <button type="button" class="logout-btn" id="logoutBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Log Out</span>
+        </button>
+      </div>
+    </main>
+
+    <div class="support-float-wrap">
+      <div class="support-label">Support</div>
+      <a href="https://wa.me/256765050916" target="_blank" class="support-btn-float" aria-label="Customer Support">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      </a>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="nav-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span>Account</span>
+      </a>
+      <a href="Vault.html" class="nav-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Vaults</span>
+      </a>
+      <a href="network.html" class="nav-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Network</span>
+      </a>
+      <a href="portfolio.html" class="nav-link active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        <span>Portfolio</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Include Centralized Brain Script (Handles all secure Firestore fetching and rendering) -->
+  <script type="module" src="script.js"></script>
+  
+  <!-- Secure UI Sync Script (No localStorage) -->
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+    // Wait for VortexBrain to be initialized by script.js
+    const checkBrain = setInterval(() => {
+      if (window.VortexBrain && window.VortexBrain.getState()) {
+        clearInterval(checkBrain);
+        const state = window.VortexBrain.getState();
+        
+        // Update Summary Cards securely from Firestore state
+        const sumInv = document.getElementById('summaryTotalInvestment');
+        if (sumInv) sumInv.textContent = `UGX ${(state.totalActiveInvestment || 0).toLocaleString()}`;
+
+        const sumDaily = document.getElementById('summaryDailyYield');
+        if (sumDaily) sumDaily.textContent = `UGX ${(state.dailyYield || 0).toLocaleString()}`;
+
+        const sumEarned = document.getElementById('summaryTotalEarned');
+        if (sumEarned) sumEarned.textContent = `UGX ${(state.totalEarned || 0).toLocaleString()}`;
+
+        const sumUnits = document.getElementById('summaryActiveUnits');
+        if (sumUnits) sumUnits.textContent = `${state.activeRobotsCount || 0} Robot${(state.activeRobotsCount || 0) === 1 ? '' : 's'}`;
+
+        // Update User Role / Phone in summary
+        const userRole = document.getElementById('portfolioUserRole');
+        if (userRole && state.phone) userRole.textContent = `UG${state.phone}`;
+      }
+    }, 100);
+
+    // Secure Logout handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await signOut(auth);
+          window.location.href = 'index.html';
+        } catch (err) {
+          console.error("Sign out error:", err);
+          window.location.href = 'index.html';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

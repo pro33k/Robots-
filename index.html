@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Vortex Robot - Sign In / Register</title>
+  <link rel="icon" type="image/jpeg" href="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" />
+  <style>
+    :root {
+      --vortex-orange: #f97316;
+      --vortex-orange-dark: #ea580c;
+      --vortex-bg-app: #f8fafc;
+      --vortex-card-bg: #ffffff;
+      --vortex-text-main: #0f172a;
+      --vortex-text-muted: #64748b;
+      --vortex-border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background-color: var(--vortex-bg-app);
+      color: var(--vortex-text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    .auth-container { width: 100%; max-width: 400px; padding: 20px; }
+    .auth-card {
+      background: var(--vortex-card-bg);
+      border: 1px solid var(--vortex-border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+      position: relative;
+    }
+    .auth-flag-badge {
+      position: absolute; top: 0; right: 0; width: 44px; height: 32px;
+      border-top-right-radius: 20px; border-bottom-left-radius: 16px;
+      overflow: hidden; display: flex; flex-direction: column;
+      box-shadow: -2px 2px 6px rgba(0,0,0,0.15); z-index: 2;
+    }
+    .flag-stripe { flex: 1; width: 100%; }
+    .flag-black { background: #000000; }
+    .flag-yellow { background: #FCD116; }
+    .flag-red { background: #D9381E; }
+    .flag-crest-circle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 10px; height: 10px; background: #ffffff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .flag-crest-inner { width: 5px; height: 5px; background: #D9381E; border-radius: 50%; }
+
+    .auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .auth-logo {
+      width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
+      border: 1.5px solid var(--vortex-orange);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+    }
+    .auth-title { font-size: 20px; font-weight: 800; color: var(--vortex-text-main); margin: 0; }
+    .auth-subtitle { font-size: 12px; color: var(--vortex-text-muted); margin: 0; font-weight: 600; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+    .form-label { display: block; font-size: 12px; color: var(--vortex-text-muted); margin-bottom: 5px; font-weight: 600; }
+    .form-input {
+      width: 100%; padding: 12px 14px; background: #f1f5f9; border: 1px solid var(--vortex-border);
+      border-radius: 12px; color: var(--vortex-text-main); font-size: 14px; outline: none; font-weight: 600;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-input:focus { border-color: var(--vortex-orange); background: #ffffff; }
+    
+    .btn-submit {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--vortex-orange) 0%, var(--vortex-orange-dark) 100%);
+      border: none; border-radius: 12px; color: #ffffff; font-weight: 700; font-size: 15px;
+      cursor: pointer; margin-top: 10px;
+      box-shadow: rgba(50, 50, 93, 0.15) 0px 30px 60px -12px, rgba(0, 0, 0, 0.2) 0px 18px 36px -18px, rgba(10, 37, 64, 0.2) 0px -2px 6px 0px inset;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .toggle-auth-mode {
+      text-align: center; margin-top: 18px; font-size: 13px; color: var(--vortex-text-muted); font-weight: 600;
+    }
+    .toggle-auth-mode a { color: var(--vortex-orange); text-decoration: none; font-weight: 700; cursor: pointer; }
+    .toggle-auth-mode a:hover { text-decoration: underline; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: var(--vortex-card-bg); border: 1px solid var(--vortex-border);
+      border-radius: 22px; width: 90%; max-width: 360px; padding: 26px 22px;
+      color: var(--vortex-text-main); text-align: center; 
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative; transform: scale(0.92) translateY(12px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
+
+    .doors-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(ellipse at center, #1a2a3a 0%, #050a10 70%, #000 100%);
+      z-index: 99999; display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0; transition: opacity 0.45s ease;
+      perspective: 1600px; overflow: hidden;
+    }
+    .doors-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .door-gateway {
+      position: relative; width: 100%; max-width: 460px; height: 100%;
+      max-height: 820px; display: flex; justify-content: center; align-items: center;
+    }
+    .door-panel {
+      position: absolute; top: 0; width: 50%; height: 100%;
+      background-color: #c9a07a;
+      background-image:
+        repeating-linear-gradient(90deg, transparent 0px, transparent 3px, rgba(90, 55, 30, 0.04) 3px, rgba(90, 55, 30, 0.04) 4px),
+        repeating-linear-gradient(0deg, transparent 0px, transparent 18px, rgba(140, 95, 55, 0.07) 18px, rgba(140, 95, 55, 0.07) 20px),
+        linear-gradient(90deg, #a67c52 0%, #d4b08c 18%, #e8d0b0 38%, #d4b08c 55%, #b89068 78%, #9a7048 100%);
+      box-sizing: border-box; transition: transform 1.7s cubic-bezier(0.77, 0, 0.175, 1);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.28), inset 0 0 12px rgba(0,0,0,0.15);
+    }
+    .door-left {
+      left: 0; transform-origin: left center; border-right: 4px solid #7a4f32;
+      box-shadow: inset -8px 0 18px rgba(0,0,0,0.25), inset 0 0 40px rgba(0,0,0,0.28);
+    }
+    .door-right {
+      right: 0; transform-origin: right center; border-left: 4px solid #7a4f32;
+      box-shadow: inset 8px 0 18px rgba(0,0,0,0.25), inset 0 0 40px rgba(0,0,0,0.28);
+    }
+    .door-panel::before {
+      content: ''; position: absolute; top: 6%; bottom: 6%; left: 9%; right: 9%;
+      border: 3px solid #a67c52; border-radius: 3px;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.22), inset 0 -2px 4px rgba(255,255,255,0.18), 0 1px 2px rgba(255,255,255,0.25);
+      background: linear-gradient(180deg, rgba(210, 170, 125, 0.35) 0%, rgba(160, 115, 75, 0.18) 100%);
+      pointer-events: none;
+    }
+    .door-panel::after {
+      content: ''; position: absolute; top: 9%; bottom: 9%; left: 28%; right: 28%;
+      border-left: 2px solid rgba(110, 70, 40, 0.28); border-right: 2px solid rgba(110, 70, 40, 0.28);
+      pointer-events: none;
+    }
+    .door-handle-wrap {
+      position: absolute; top: 50%; width: 28px; height: 70px;
+      transform: translateY(-50%); z-index: 12; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .door-left .door-handle-wrap { right: 14px; }
+    .door-right .door-handle-wrap { left: 14px; }
+    .door-handle-plate {
+      position: absolute; width: 22px; height: 58px;
+      background: linear-gradient(90deg, #2a2a2a 0%, #4a4a4a 40%, #333 70%, #1f1f1f 100%);
+      border-radius: 4px; box-shadow: 0 3px 8px rgba(0,0,0,0.55), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.4);
+    }
+    .door-handle {
+      position: relative; width: 11px; height: 38px;
+      background: linear-gradient(90deg, #1a1a1a 0%, #555 35%, #3a3a3a 65%, #111 100%);
+      border-radius: 3px 5px 5px 3px; box-shadow: 2px 3px 6px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,255,255,0.2);
+      z-index: 2; transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .door-left .door-handle { border-radius: 5px 3px 3px 5px; transform-origin: right center; }
+    .door-right .door-handle { transform-origin: left center; }
+    .door-handle::after {
+      content: ''; position: absolute; top: 50%; width: 7px; height: 7px;
+      background: radial-gradient(circle at 35% 35%, #777, #222); border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.5); transform: translateY(-50%);
+    }
+    .door-left .door-handle::after { left: -3px; }
+    .door-right .door-handle::after { right: -3px; }
+
+    .doors-overlay.turn-handle .door-left .door-handle { transform: rotate(55deg); }
+    .doors-overlay.turn-handle .door-right .door-handle { transform: rotate(-55deg); }
+
+    .door-hand {
+      position: absolute; top: 47%; right: -95px; font-size: 48px; line-height: 1; z-index: 20; opacity: 0;
+      transform: scale(0.35) translateX(20px); filter: drop-shadow(-4px 5px 10px rgba(0,0,0,0.7));
+      transition: all 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;
+    }
+    .doors-overlay.reach-hand .door-hand { opacity: 1; transform: scale(1) translateX(-78px); }
+
+    .doors-overlay.open .door-left { transform: rotateY(-118deg); }
+    .doors-overlay.open .door-right { transform: rotateY(118deg); }
+    .doors-overlay.open .door-hand { opacity: 0; transition: opacity 0.25s ease; }
+
+    .door-content {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.82);
+      text-align: center; z-index: 1; opacity: 0; transition: all 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(255, 255, 255, 0.97); border: 1px solid rgba(226, 232, 240, 0.9);
+      padding: 28px 22px 26px; border-radius: 22px;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.6);
+      width: 84%; max-width: 310px; backdrop-filter: blur(10px);
+    }
+    .doors-overlay.show-content .door-content { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    .slogan-badge {
+      display: inline-block; background: rgba(249, 115, 22, 0.12); color: var(--vortex-orange);
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.8px;
+      padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(249, 115, 22, 0.25); margin-bottom: 14px;
+    }
+    .slogan-logo {
+      width: 78px; height: 78px; border-radius: 50%; border: 2.5px solid var(--vortex-orange);
+      margin: 0 auto 14px auto; box-shadow: 0 0 28px rgba(249,115,22,0.35); display: block; object-fit: cover;
+      animation: pulseGlow 2.2s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 16px rgba(249,115,22,0.25); }
+      50% { box-shadow: 0 0 34px rgba(249,115,22,0.55); }
+    }
+    .slogan-title { color: var(--vortex-text-main); font-size: 22px; font-weight: 800; margin: 0 0 6px 0; letter-spacing: 0.3px; }
+    .slogan-text {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-size: 19px; font-weight: 900; margin: 0; letter-spacing: 0.2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-flag-badge">
+        <div class="flag-stripe flag-black"></div>
+        <div class="flag-stripe flag-yellow"></div>
+        <div class="flag-stripe flag-red"></div>
+        <div class="flag-stripe flag-black"></div>
+        <div class="flag-stripe flag-yellow"></div>
+        <div class="flag-stripe flag-red"></div>
+        <div class="flag-crest-circle"><div class="flag-crest-inner"></div></div>
+      </div>
+
+      <div class="auth-brand">
+        <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Vortex Logo" class="auth-logo" />
+        <div>
+          <h1 class="auth-title" id="formHeaderTitle">Create Account</h1>
+          <p class="auth-subtitle">Vortex Global Speed Robots</p>
+        </div>
+      </div>
+
+      <form id="authForm">
+        <div class="form-row" id="nameFieldsRow">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" id="firstNameInput" class="form-input" placeholder="First name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" id="lastNameInput" class="form-input" placeholder="Last name" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="emailInput" class="form-input" placeholder="@example.com" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number (Mobile Money)</label>
+          <input type="tel" id="phoneInput" class="form-input" placeholder="0701234567" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required />
+        </div>
+
+        <div class="form-group" id="refFieldGroup">
+          <label class="form-label">Invitation Code (Optional)</label>
+          <input type="text" id="refCodeInput" class="form-input" placeholder="e.g. 708157189" />
+        </div>
+
+        <button type="submit" class="btn-submit" id="authSubmitBtn">Register Account</button>
+      </form>
+
+      <div class="toggle-auth-mode">
+        <span id="toggleText">Already have an account?</span> 
+        <a id="toggleModeBtn">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="doors-overlay" id="doorsOverlay">
+    <div class="door-gateway">
+      <div class="door-panel door-left">
+        <div class="door-handle-wrap">
+          <div class="door-handle-plate"></div>
+          <div class="door-handle"></div>
+        </div>
+        <div class="door-hand">👉</div>
+      </div>
+      <div class="door-panel door-right">
+        <div class="door-handle-wrap">
+          <div class="door-handle-plate"></div>
+          <div class="door-handle"></div>
+        </div>
+      </div>
+      <div class="door-content">
+        <span class="slogan-badge">Secure Gateway</span>
+        <img src="https://i.ibb.co/M572MJr6/71c20a784a800f78a2e7e0463a17b039.jpg" alt="Logo" class="slogan-logo" />
+        <h2 class="slogan-title">Welcome to Vortex</h2>
+        <p class="slogan-text">Make money 💰 daily</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal-card" style="text-align: center;">
+      <div id="alertIcon" style="font-size: 32px; margin-bottom: 10px;">⚠️</div>
+      <h3 id="alertTitle" style="font-size: 17px; margin-bottom: 8px; color: var(--vortex-text-main); font-weight: 700;">Notice</h3>
+      <p id="alertMessage" style="font-size: 13.5px; color: var(--vortex-text-muted); margin-bottom: 18px; line-height: 1.45; font-weight: 500;">Message</p>
+      <button class="btn-submit" id="alertCloseBtn" style="margin-top: 0; padding: 11px;">OK</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const authForm = document.getElementById('authForm');
+      const formHeaderTitle = document.getElementById('formHeaderTitle');
+      const nameFieldsRow = document.getElementById('nameFieldsRow');
+      const refFieldGroup = document.getElementById('refFieldGroup');
+      const authSubmitBtn = document.getElementById('authSubmitBtn');
+      const toggleText = document.getElementById('toggleText');
+      const toggleModeBtn = document.getElementById('toggleModeBtn');
+
+      const emailInput = document.getElementById('emailInput');
+      const phoneInput = document.getElementById('phoneInput');
+      const passwordInput = document.getElementById('passwordInput');
+      const firstNameInput = document.getElementById('firstNameInput');
+      const lastNameInput = document.getElementById('lastNameInput');
+      const refCodeInput = document.getElementById('refCodeInput');
+
+      const doorsOverlay = document.getElementById('doorsOverlay');
+      const alertModal = document.getElementById('alertModal');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+      const alertCloseBtn = document.getElementById('alertCloseBtn');
+
+      let isLoginMode = false;
+
+      // --- AUTOMATIC REFERRAL CODE DETECTION FROM URL ---
+      const urlParams = new URLSearchParams(window.location.search);
+      let refCode = urlParams.get('ref');
+
+      if (!refCode) {
+        const pathSegments = window.location.pathname.split('/');
+        const refIndex = pathSegments.indexOf('ref');
+        if (refIndex !== -1 && pathSegments[refIndex + 1]) {
+          refCode = pathSegments[refIndex + 1];
+        }
+      }
+
+      if (refCode && refCodeInput) {
+        refCodeInput.value = refCode;
+        refCodeInput.readOnly = true;
+      }
+      // --------------------------------------------------
+
+      function showAlert(title, message) {
+        alertTitle.textContent = title;
+        alertMessage.textContent = message;
+        alertModal.classList.add('active');
+      }
+
+      alertCloseBtn.addEventListener('click', () => alertModal.classList.remove('active'));
+
+      toggleModeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        if (isLoginMode) {
+          formHeaderTitle.textContent = 'Welcome Back';
+          nameFieldsRow.style.display = 'none';
+          refFieldGroup.style.display = 'none';
+          authSubmitBtn.textContent = 'Sign In';
+          toggleText.textContent = "Don't have an account?";
+          toggleModeBtn.textContent = 'Register';
+        } else {
+          formHeaderTitle.textContent = 'Create Account';
+          nameFieldsRow.style.display = 'flex';
+          refFieldGroup.style.display = 'block';
+          authSubmitBtn.textContent = 'Register Account';
+          toggleText.textContent = 'Already have an account?';
+          toggleModeBtn.textContent = 'Sign In';
+        }
+      });
+
+      // Normalize phone number helper
+      function normalizePhone(phone) {
+        let p = phone.trim();
+        if (p.startsWith('+256')) p = '0' + p.slice(4);
+        else if (p.startsWith('256') && p.length >= 12) p = '0' + p.slice(3);
+        return p;
+      }
+
+      authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        const rawPhone = phoneInput.value.trim();
+        const phone = normalizePhone(rawPhone);
+        const password = passwordInput.value.trim();
+
+        if (!email || !phone || !password) {
+          showAlert('Missing Fields', 'Please fill in all required fields.');
+          return;
+        }
+
+        // Basic Ugandan phone validation
+        if (!/^0(7[012456789])\d{7}$/.test(phone)) {
+          showAlert('Invalid Phone', 'Please enter a valid Ugandan mobile number (e.g., 0701234567).');
+          return;
+        }
+
+        authSubmitBtn.disabled = true;
+        authSubmitBtn.textContent = isLoginMode ? "Signing In..." : "Creating Account...";
+
+        try {
+          if (isLoginMode) {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              if (userData.phone !== phone) {
+                showAlert('Phone Mismatch', 'The phone number you entered does not match this account.');
+                authSubmitBtn.disabled = false;
+                authSubmitBtn.textContent = "Sign In";
+                return;
+              }
+            }
+            triggerDoorsAnimation();
+          } else {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            const firstName = firstNameInput.value.trim() || 'User';
+            const lastName = lastNameInput.value.trim() || '';
+            const referralCodeUsed = refCodeInput ? refCodeInput.value.trim() : '';
+
+            // SECURE REGISTRATION: Save ALL required default fields to Firestore
+            await setDoc(doc(db, "users", user.uid), {
+              uid: user.uid,
+              firstName,
+              lastName,
+              email,
+              phone,
+              balance: 2000,
+              bonusBalance: 2000,
+              referralBalance: 0,
+              totalActiveInvestment: 0,
+              dailyYield: 0,
+              totalEarned: 0,
+              activeRobotsCount: 0,
+              referredBy: referralCodeUsed || null,
+              referralBonusPaid: false,
+              createdAt: serverTimestamp()
+            });
+
+            // Note: The 13% referral bonus is securely handled by script.js (processReferralBonus)
+            // when the new user makes their first deposit or investment. No localStorage needed!
+
+            triggerDoorsAnimation();
+          }
+        } catch (error) {
+          console.error("Authentication error:", error);
+          
+          if (isLoginMode && (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email')) {
+            showAlert('No Account Found', 'No account found with these credentials. Please register first.');
+          } else if (isLoginMode && error.code === 'auth/wrong-password') {
+            showAlert('Incorrect Password', 'The password you entered is incorrect.');
+          } else if (!isLoginMode && error.code === 'auth/email-already-in-use') {
+            showAlert('Email Taken', 'This email is already registered. Please sign in instead.');
+          } else {
+            showAlert('Authentication Error', error.message);
+          }
+
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = isLoginMode ? "Sign In" : "Register Account";
+        }
+      });
+
+      function triggerDoorsAnimation() {
+        doorsOverlay.classList.add('active');
+        setTimeout(() => doorsOverlay.classList.add('reach-hand'), 320);
+        setTimeout(() => doorsOverlay.classList.add('turn-handle'), 1150);
+        setTimeout(() => doorsOverlay.classList.add('open'), 1650);
+        setTimeout(() => doorsOverlay.classList.add('show-content'), 2300);
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 4200);
+      }
+    });
+  </script>
+</body>
+</html>
